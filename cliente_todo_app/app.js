@@ -4,7 +4,7 @@
 */
 
 // URL a la base del servidor backend de la actividad (API)
-const API_URL = "http://127.0.0.1:8000/tareas";
+const API_URL = "https://fullstack-nube-3409609.onrender.com/docs";
 
 //Elementos del DOM
 const formTarea = document.getElementById("task-form");
