@@ -18,7 +18,7 @@ coleccion_tareas = database["tareas"]
 async def verificar_conexion():
     """Funcion de comprobacion de estado de la conexion al iniciar la API"""
     try:
-        await client.admin_command('ping')
+        await client.admin.command('ping')
         print(f"Conexion exitosa a MongoDB - Base de Datos: '{DATABASE_NAME}'")
     except Exception as e:
         print(f"Error de conexion a MongoDB: {e}")
