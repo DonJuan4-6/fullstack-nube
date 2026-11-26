@@ -6,7 +6,7 @@ Gestione la conexión asincrona a MongoDB utilizando Motor
 from motor.motor_asyncio import AsyncIOMotorClient
 from decouple import config
 
-MONGODB_URL = config("MONGO_URL", default="mongodb://localhost:27017")
+MONGODB_URL = config("MONGO_URL", default=config("MONGODB_URL", default="mongodb://localhost:27017"))
 DATABASE_NAME = config("DATABASE_NAME", default="adso_db")
 
 client = AsyncIOMotorClient(MONGODB_URL)
