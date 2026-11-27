@@ -54,6 +54,16 @@ class CursoIdiomaBase(BaseModel):
         max_length=2048,
         description="URL de la imagen del estudiante o matrícula"
     )
+    estudiante_nombre: Optional[str] = Field(
+        None,
+        max_length=150,
+        description="Nombre del estudiante asociado a la matrícula"
+    )
+    idioma: Optional[str] = Field(
+        None,
+        max_length=100,
+        description="Idioma del curso"
+    )
 
 
 class CursoIdiomaCreate(CursoIdiomaBase):
@@ -68,6 +78,35 @@ class CursoIdiomaUpdate(BaseModel):
     valor_curso: Optional[float] = Field(None, ge=0)
     pagado: Optional[bool] = None
     imagen_url: Optional[str] = Field(None, max_length=2048)
+    estudiante_nombre: Optional[str] = Field(None, max_length=150)
+    idioma: Optional[str] = Field(None, max_length=100)
+
+
+class EstudianteBase(BaseModel):
+    nombre: str = Field(..., min_length=3, max_length=100)
+    documento: str = Field(..., min_length=1, max_length=30)
+    correo: str = Field(..., min_length=3, max_length=254)
+    telefono: str = Field(..., min_length=1, max_length=20)
+
+
+class EstudianteCreate(EstudianteBase):
+    pass
+
+
+class EstudianteUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, min_length=3, max_length=100)
+    documento: Optional[str] = Field(None, min_length=1, max_length=30)
+    correo: Optional[str] = Field(None, min_length=3, max_length=254)
+    telefono: Optional[str] = Field(None, min_length=1, max_length=20)
+
+
+class Estudiante(EstudianteBase):
+    id: PyObjectId = Field(alias="_id", description="Identificador unico de MongoDB")
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True
+    )
 
 
 class CursoIdioma(CursoIdiomaBase):

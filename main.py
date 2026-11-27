@@ -5,8 +5,15 @@ from bson import ObjectId
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import coleccion_matriculas, verificar_conexion
-from models import CursoIdioma, CursoIdiomaCreate, CursoIdiomaUpdate
+from database import coleccion_estudiantes, coleccion_matriculas, verificar_conexion
+from models import (
+    CursoIdioma,
+    CursoIdiomaCreate,
+    CursoIdiomaUpdate,
+    Estudiante,
+    EstudianteCreate,
+    EstudianteUpdate,
+)
 
 app = FastAPI(
     title="API Centro de Idiomas Global Speak",
@@ -57,14 +64,87 @@ async def create_matricula(matricula_in: CursoIdiomaCreate):
 
 @app.get(
     "/estudiantes",
-    response_model=List[str],
+    response_model=List[Estudiante],
     status_code=status.HTTP_200_OK,
     tags=["Estudiantes"],
     summary="Listar los estudiantes registrados"
 )
 async def get_estudiantes():
-    """Devuelve los nombres de estudiantes con matrículas registradas."""
-    return await coleccion_matriculas.distinct("estudiante")
+    """Devuelve los estudiantes registrados."""
+    estudiantes = []
+    cursor = coleccion_estudiantes.find().sort("nombre", 1)
+    async for documento in cursor:
+        estudiantes.append(documento)
+    return estudiantes
+
+
+@app.post(
+    "/estudiantes",
+    response_model=Estudiante,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Estudiantes"],
+    summary="Registrar un estudiante"
+)
+async def create_estudiante(estudiante_in: EstudianteCreate):
+    estudiante = estudiante_in.model_dump()
+    resultado = await coleccion_estudiantes.insert_one(estudiante)
+    return await coleccion_estudiantes.find_one({"_id": resultado.inserted_id})
+
+
+@app.put(
+    "/estudiantes/{id}",
+    response_model=Estudiante,
+    status_code=status.HTTP_200_OK,
+    tags=["Estudiantes"],
+    summary="Actualizar un estudiante"
+)
+async def update_estudiante(id: str, estudiante_update: EstudianteUpdate):
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El formato del ID '{id}' no es un ObjectId válido"
+        )
+
+    object_id = ObjectId(id)
+    datos_a_actualizar = estudiante_update.model_dump(exclude_unset=True)
+
+    if datos_a_actualizar:
+        await coleccion_estudiantes.update_one(
+            {"_id": object_id},
+            {"$set": datos_a_actualizar}
+        )
+
+    estudiante = await coleccion_estudiantes.find_one({"_id": object_id})
+    if estudiante:
+        return estudiante
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"El estudiante con ID '{id}' no fue encontrado"
+    )
+
+
+@app.delete(
+    "/estudiantes/{id}",
+    status_code=status.HTTP_200_OK,
+    tags=["Estudiantes"],
+    summary="Eliminar un estudiante"
+)
+async def delete_estudiante(id: str):
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El formato del ID '{id}' no es un ObjectId válido"
+        )
+
+    resultado = await coleccion_estudiantes.delete_one({"_id": ObjectId(id)})
+    if resultado.deleted_count == 1:
+        return {"mensaje": f"Estudiante con ID '{id}' eliminado exitosamente"}
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"El estudiante con ID '{id}' no fue encontrado"
+    )
 
 
 @app.get(

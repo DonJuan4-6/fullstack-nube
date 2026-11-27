@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Speak | Matrículas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body data-page="matriculados">
+    <div class="app-shell">
+        <aside class="sidebar"><a class="brand" href="index.html"><span class="brand-mark">GS</span><span>global<span
+                        class="brand-light">speak</span><small>LANGUAGE CENTER</small></span></a>
+            <div class="sidebar-label">MENÚ PRINCIPAL</div>
+            <nav class="nav-menu"><a class="nav-link" href="index.html"><span class="nav-icon">▦</span> Panel
+                    principal</a><a class="nav-link" href="estudiantes.html"><span class="nav-icon">♙</span>
+                    Estudiantes</a><a class="nav-link active" href="matricula.html"><span class="nav-icon">▤</span>
+                    Matriculados</a><a class="nav-link" href="pagos.html"><span class="nav-icon">＄</span> Pago
+                    pendiente</a></nav>
+            <div class="sidebar-bottom">
+                <div class="help-card"><span class="help-icon">✦</span><strong>¡Aprender abre puertas!</strong>
+                    <p>Un nuevo idioma, nuevas oportunidades.</p>
+                </div>
+                <div class="profile-mini">
+                    <div class="avatar">GS</div>
+                    <div><strong>Global Speak</strong><small>Administración</small></div>
+                </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="topbar">
+                <div><span class="eyebrow">GESTIÓN ACADÉMICA</span>
+                    <h1>Matriculados</h1>
+                </div>
+                <div class="topbar-right"><span class="today" id="today-date"></span>
+                    <div class="top-avatar">GS</div>
+                </div>
+            </header>
+            <section class="page-intro" id="nueva-matricula">
+                <div>
+                    <h2>Control de matrículas</h2>
+                    <p class="muted">Consulta las inscripciones y registra nuevos cursos.</p>
+                </div>
+            </section>
+            <section class="panel form-panel">
+                <div class="panel-heading">
+                    <div><span class="eyebrow">NUEVA INSCRIPCIÓN</span>
+                        <h3>Registrar matrícula</h3>
+                    </div><span class="form-step">01 / 01</span>
+                </div>
+                <form id="enrollment-form">
+                    <div class="form-grid"><label>Estudiante<select id="enrollment-student" required>
+                                <option value="">Selecciona un estudiante</option>
+                            </select></label><label>Idioma<select id="enrollment-language" required>
+                                <option value="">Selecciona un idioma</option>
+                                <option>Inglés</option>
+                                <option>Francés</option>
+                                <option>Alemán</option>
+                                <option>Italiano</option>
+                                <option>Portugués</option>
+                                <option>Mandarín</option>
+                            </select></label><label>Nivel<select id="enrollment-level" required>
+                                <option value="">Selecciona un nivel</option>
+                                <option>A1 - Básico</option>
+                                <option>A2 - Básico</option>
+                                <option>B1 - Intermedio</option>
+                                <option>B2 - Intermedio</option>
+                                <option>C1 - Avanzado</option>
+                                <option>C2 - Avanzado</option>
+                            </select></label><label>Valor del curso (COP)<input id="enrollment-value" type="number"
+                                min="0" step="1000" required placeholder="Ej. 450000"></label><label
+                            class="checkbox-label"><input id="enrollment-paid" type="checkbox"> El curso ya fue
+                            pagado</label></div>
+                    <div class="form-bottom">
+                        <p class="muted">Verifica los datos antes de registrar la matrícula.</p><button
+                            class="button button-primary" type="submit">Guardar matrícula →</button>
+                    </div>
+                </form>
+            </section>
+            <section class="panel">
+                <div class="panel-heading">
+                    <div><span class="eyebrow">REGISTROS</span>
+                        <h3>Listado de matrículas</h3>
+                    </div><span class="result-count" id="enrollment-count">0 matrículas</span>
+                </div>
+                <div class="toolbar">
+                    <div class="search-box"><span>⌕</span><input type="search" id="enrollment-search"
+                            placeholder="Buscar estudiante o idioma..."></div><select class="filter-select"
+                        id="enrollment-filter">
+                        <option value="todas">Todos los estados</option>
+                        <option value="pagado">Pagadas</option>
+                        <option value="pendiente">Pendientes</option>
+                    </select>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ESTUDIANTE</th>
+                                <th>IDIOMA</th>
+                                <th>NIVEL</th>
+                                <th>VALOR</th>
+                                <th>PAGO</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="enrollments-table">
+                            <tr>
+                                <td colspan="6" class="empty-cell">Aún no hay matrículas registradas.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <footer class="footer">© 2026 Global Speak · Centro de Idiomas</footer>
+        </main>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/matriculado.js"></script>
+</body>
+
+</html>

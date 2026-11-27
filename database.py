@@ -11,6 +11,7 @@ client = AsyncIOMotorClient(MONGODB_URL)
 database = client[DATABASE_NAME]
 
 coleccion_matriculas = database["matriculas"]
+coleccion_estudiantes = database["estudiantes"]
 
 async def verificar_conexion():
     """Funcion de comprobacion de estado de la conexion al iniciar la API"""

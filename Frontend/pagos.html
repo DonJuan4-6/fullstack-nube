@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Speak | Pagos pendientes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body data-page="pagos">
+    <div class="app-shell">
+        <aside class="sidebar"><a class="brand" href="index.html"><span class="brand-mark">GS</span><span>global<span
+                        class="brand-light">speak</span><small>LANGUAGE CENTER</small></span></a>
+            <div class="sidebar-label">MENÚ PRINCIPAL</div>
+            <nav class="nav-menu"><a class="nav-link" href="index.html"><span class="nav-icon">▦</span> Panel
+                    principal</a><a class="nav-link" href="estudiantes.html"><span class="nav-icon">♙</span>
+                    Estudiantes</a><a class="nav-link" href="matricula.html"><span class="nav-icon">▤</span>
+                    Matriculados</a><a class="nav-link active" href="pagos.html"><span class="nav-icon">＄</span> Pago
+                    pendiente</a></nav>
+            <div class="sidebar-bottom">
+                <div class="help-card"><span class="help-icon">✦</span><strong>¡Aprender abre puertas!</strong>
+                    <p>Un nuevo idioma, nuevas oportunidades.</p>
+                </div>
+                <div class="profile-mini">
+                    <div class="avatar">GS</div>
+                    <div><strong>Global Speak</strong><small>Administración</small></div>
+                </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="topbar">
+                <div><span class="eyebrow">GESTIÓN FINANCIERA</span>
+                    <h1>Pagos pendientes</h1>
+                </div>
+                <div class="topbar-right"><span class="today" id="today-date"></span>
+                    <div class="top-avatar">GS</div>
+                </div>
+            </header>
+            <section class="page-intro">
+                <div>
+                    <h2>Seguimiento de pagos</h2>
+                    <p class="muted">Consulta las matrículas que todavía tienen un pago pendiente.</p>
+                </div><a class="button button-outline" href="matricula.html">Ver matrículas</a>
+            </section>
+            <section class="stats-grid payment-stats">
+                <article class="stat-card">
+                    <div class="stat-top"><span class="stat-icon peach">◷</span><span
+                            class="stat-caption">PENDIENTES</span></div><strong class="stat-number"
+                        id="pending-count">0</strong><span class="stat-label">Matrículas por pagar</span>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-top"><span class="stat-icon rose">$</span><span class="stat-caption">POR
+                            RECAUDAR</span></div><strong class="stat-number" id="pending-total">$0</strong><span
+                        class="stat-label">Valor pendiente</span>
+                </article>
+            </section>
+            <section class="panel">
+                <div class="panel-heading">
+                    <div><span class="eyebrow">CARTERA</span>
+                        <h3>Pagos por gestionar</h3>
+                    </div><span class="result-count" id="pending-label">0 registros</span>
+                </div>
+                <div class="toolbar">
+                    <div class="search-box"><span>⌕</span><input type="search" id="pending-search"
+                            placeholder="Buscar por estudiante o idioma..."></div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ESTUDIANTE</th>
+                                <th>IDIOMA / NIVEL</th>
+                                <th>VALOR PENDIENTE</th>
+                                <th>ESTADO</th>
+                                <th>ACCIÓN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-table">
+                            <tr>
+                                <td colspan="5" class="empty-cell">No hay pagos pendientes. ¡Excelente!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <footer class="footer">© 2026 Global Speak · Centro de Idiomas</footer>
+        </main>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/pagos.js"></script>
+</body>
+
+</html>
