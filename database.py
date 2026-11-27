@@ -1,21 +1,17 @@
-"""
-Modulo de base de datos (database.py)
-Gestione la conexión asincrona a MongoDB utilizando Motor
-"""
+"""Configuración de la conexión asíncrona a MongoDB mediante Motor."""
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from decouple import config
 
 MONGODB_URL = config("MONGO_URL", default=config("MONGODB_URL", default="mongodb://localhost:27017"))
-DATABASE_NAME = config("DATABASE_NAME", default="adso_db")
+DATABASE_NAME = config("DATABASE_NAME", default="curso_idioma_db")
 
 client = AsyncIOMotorClient(MONGODB_URL)
 
 database = client[DATABASE_NAME]
 
-coleccion_tareas = database["tareas"]
-coleccion_estudiantes = database["estudiantes"]
 coleccion_matriculas = database["matriculas"]
+coleccion_estudiantes = database["estudiantes"]
 
 async def verificar_conexion():
     """Funcion de comprobacion de estado de la conexion al iniciar la API"""
