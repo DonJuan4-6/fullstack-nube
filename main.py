@@ -17,7 +17,7 @@ app = FastAPI(
 # Configuración de CORS para permitir conexion con clientes Frontend (React, Angular, etc.)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://fullstack-nube-3409609.vercel.app"],
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
