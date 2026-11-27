@@ -1,20 +1,19 @@
+from datetime import datetime
+from typing import List
+
+from bson import ObjectId
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
-from bson import ObjectId
-from datetime import datetime
 
-from models import Tarea, TareaCreate, TareaUpdate
-from database import coleccion_tareas, verificar_conexion
+from database import coleccion_matriculas, verificar_conexion
+from models import CursoIdioma, CursoIdiomaCreate, CursoIdiomaUpdate
 
-# Instancia principal de FastAPI
 app = FastAPI(
-    title="API TODO App Profesional - SENA ADSO",
-    description="API RESTful asíncrona con FastAPI y MongoDB (FARM Stack)",
+    title="API Centro de Idiomas Global Speak",
+    description="API RESTful asíncrona para gestionar matrículas de cursos de idiomas",
     version="1.0.0"
 )
 
-# Configuración de CORS para permitir conexion con clientes Frontend (React, Angular, etc.)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,154 +22,167 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def startup_db_client():
     await verificar_conexion()
 
-# ===================================
-#     ENDPOINTS RESTful ASÍNCRONOS
-# ===================================
 
 @app.get("/", tags=["Raíz"])
 async def root():
     return {
-        "mensaje": "Bienvenido a la API TODO App Asíncrona con MongoDB (SENA ADSO)",
+        "mensaje": "Bienvenido a la API del Centro de Idiomas Global Speak",
         "documentacion": "/docs"
     }
 
+
 @app.post(
-    "/tareas",
-    response_model=Tarea,
+    "/matriculas",
+    response_model=CursoIdioma,
     status_code=status.HTTP_201_CREATED,
-    tags=["Tareas"],
-    summary="Crear una nueva tarea en MongoDB"
+    tags=["Matrículas"],
+    summary="Crear una nueva matrícula"
 )
+async def create_matricula(matricula_in: CursoIdiomaCreate):
+    """Guarda una matrícula en la colección 'matriculas' de MongoDB."""
+    nueva_matricula = matricula_in.model_dump()
+    nueva_matricula["fecha_matricula"] = datetime.now()
 
-async def create_tarea(tarea_in: TareaCreate):
-    """
-    Guarda una tarea de forma asíncrona en la colección 'tareas' de MongoDB:
-    - Asigna la fecha de creación actual.
-    - Evita títulos duplicados (Lanza HTTP 400 Bad Request)
-    """
-    # 1. Validar que no exista otra tarea con el mismo título
-    tarea_existente = await coleccion_tareas.find_one({"titulo": tarea_in.titulo})
-    if tarea_existente:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Ya existe una tarea registrada con el título '{tarea_in.titulo}'.."
-            )
-
-    # 2. Preparar el diccionario del documento
-    nueva_tarea = tarea_in.model_dump()
-    nueva_tarea["fecha_creacion"] = datetime.now()
-
-    # 3. Insertar asíncronamente en MongoDB
-    resultado = await coleccion_tareas.insert_one(nueva_tarea)
-
-    # 4. Recuperar el documento recien creado por su _id: ObjectId
-    tarea_creada = await coleccion_tareas.find_one({"_id": resultado.inserted_id})
-    return tarea_creada
+    resultado = await coleccion_matriculas.insert_one(nueva_matricula)
+    matricula_creada = await coleccion_matriculas.find_one(
+        {"_id": resultado.inserted_id}
+    )
+    return matricula_creada
 
 
 @app.get(
-    "/tareas",
-    response_model=List[Tarea],
+    "/estudiantes",
+    response_model=List[str],
     status_code=status.HTTP_200_OK,
-    tags=["Tareas"],
-    summary="Listar todas las tareas"    
+    tags=["Estudiantes"],
+    summary="Listar los estudiantes registrados"
 )
-async def get_tareas():
-    """Recupera asíncronamente todos los documentos de la colección de MongoDB"""
-    tareas= []
-    # Usar cursos asíncrono de Motor
-    cursor =  coleccion_tareas.find()
+async def get_estudiantes():
+    """Devuelve los nombres de estudiantes con matrículas registradas."""
+    return await coleccion_matriculas.distinct("estudiante")
+
+
+@app.get(
+    "/matriculas/pendientes",
+    response_model=List[CursoIdioma],
+    status_code=status.HTTP_200_OK,
+    tags=["Matrículas"],
+    summary="Listar matrículas con pago pendiente"
+)
+async def get_matriculas_pendientes():
+    """Recupera las matrículas cuyo campo 'pagado' es falso."""
+    matriculas = []
+    cursor = coleccion_matriculas.find({"pagado": False})
     async for documento in cursor:
-        tareas.append(documento)
-    return tareas
+        matriculas.append(documento)
+    return matriculas
+
 
 @app.get(
-    "/tareas/{id}",
-    response_model=Tarea,
+    "/matriculas",
+    response_model=List[CursoIdioma],
     status_code=status.HTTP_200_OK,
-    tags=["Tareas"],
-    summary="Buscar tarea por ObjectId"
+    tags=["Matrículas"],
+    summary="Listar todas las matrículas"
 )
-async def get_tarea_por_id(id: str):
-    """Busca una tarea específica por su ObjectId de MongoDB"""
+async def get_matriculas():
+    """Recupera todos los documentos de la colección de matrículas."""
+    matriculas = []
+    cursor = coleccion_matriculas.find()
+    async for documento in cursor:
+        matriculas.append(documento)
+    return matriculas
+
+
+@app.get(
+    "/matriculas/{id}",
+    response_model=CursoIdioma,
+    status_code=status.HTTP_200_OK,
+    tags=["Matrículas"],
+    summary="Buscar matrícula por ObjectId"
+)
+async def get_matricula_por_id(id: str):
+    """Busca una matrícula específica por su ObjectId de MongoDB."""
     if not ObjectId.is_valid(id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"El formato del ID '{id}' no es un ObjectId válido de MongoDB" 
+            detail=f"El formato del ID '{id}' no es un ObjectId válido de MongoDB"
         )
 
-    tarea = await coleccion_tareas.find_one({"_id": ObjectId(id)})
-    if tarea:
-        return tarea
+    matricula = await coleccion_matriculas.find_one({"_id": ObjectId(id)})
+    if matricula:
+        return matricula
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"La tarea con ID '{id}' no fue encontrada en la base de datos"
+        detail=f"La matrícula con ID '{id}' no fue encontrada en la base de datos"
     )
 
+
 @app.put(
-    "/tareas/{id}",
-    response_model=Tarea,
+    "/matriculas/{id}",
+    response_model=CursoIdioma,
     status_code=status.HTTP_200_OK,
-    tags=["Tareas"],
-    summary="Actualizar estado o campos de una tarea"
+    tags=["Matrículas"],
+    summary="Actualizar campos de una matrícula"
 )
-async def update_tarea(id: str, tarea_update: TareaUpdate):
-    """Actualiza los campos de un documento en MongoDB por su _id"""
+async def update_matricula(id: str, matricula_update: CursoIdiomaUpdate):
+    """Actualiza los campos de una matrícula por su _id."""
     if not ObjectId.is_valid(id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"El formato del ID '{id}' no es un ObjectId válido"
         )
 
-    # Extraer solo los datos enviados en la petición
-    datos_a_actualizar = tarea_update.model_dump(exclude_unset=True)
+    object_id = ObjectId(id)
+    datos_a_actualizar = matricula_update.model_dump(exclude_unset=True)
 
-    if len(datos_a_actualizar) >= 1:
-        resultado_actualizacion = await coleccion_tareas.update_one(
-            {"_id": ObjectId(id)},
+    if datos_a_actualizar:
+        resultado_actualizacion = await coleccion_matriculas.update_one(
+            {"_id": object_id},
             {"$set": datos_a_actualizar}
         )
 
         if resultado_actualizacion.modified_count == 1 or resultado_actualizacion.matched_count == 1:
-            tarea_modificada = await coleccion_tareas.find_one({"_id": ObjectId(id)})
-            return tarea_modificada
+            return await coleccion_matriculas.find_one({"_id": object_id})
 
-    # Si no se modificó o no se encontró el ID
-    tarea_existente = await coleccion_tareas.find_one({"_id": ObjectId(id)})
-    if tarea_existente:
-        return tarea_existente
+    matricula_existente = await coleccion_matriculas.find_one({"_id": object_id})
+    if matricula_existente:
+        return matricula_existente
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"No es posible actualizar. La tarea con ID '{id}' no existe"
+        detail=f"No es posible actualizar. La matrícula con ID '{id}' no existe"
     )
 
+
 @app.delete(
-    "/tareas/{id}",
+    "/matriculas/{id}",
     status_code=status.HTTP_200_OK,
-    tags=["Tareas"],
-    summary="Eliminar tarea de MongoDB"
+    tags=["Matrículas"],
+    summary="Eliminar una matrícula"
 )
-async def delete_tarea(id: str):
-    """ Elimina permanentemente un documento de MongoDB por su ObjectId"""
+async def delete_matricula(id: str):
+    """Elimina una matrícula de MongoDB por su ObjectId."""
     if not ObjectId.is_valid(id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"El formato del ID '{id}' no es un ObjectId válido"
         )
 
-    resultado_eliminacion = await coleccion_tareas.delete_one({"_id": ObjectId(id)})
+    resultado_eliminacion = await coleccion_matriculas.delete_one(
+        {"_id": ObjectId(id)}
+    )
 
     if resultado_eliminacion.deleted_count == 1:
-        return {"mensaje": f"Tarea con ID '{id}' eliminada exitosamente de MongoDB"}
+        return {"mensaje": f"Matrícula con ID '{id}' eliminada exitosamente de MongoDB"}
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"No es posible eliminar. La tarea con ID '{id}' no existe en la base de datos"
+        detail=f"No es posible eliminar. La matrícula con ID '{id}' no existe en la base de datos"
     )
-

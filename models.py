@@ -24,51 +24,72 @@ class _ObjectIdPydanticAnnotation:
 # Tipo de dato reutilizable para Pydantic
 PyObjectId = Annotated[str, _ObjectIdPydanticAnnotation]
 
-class TareaBase(BaseModel):
-    titulo: str = Field(
+class CursoIdiomaBase(BaseModel):
+    estudiante: str = Field(
         ...,
         min_length=3,
         max_length=150,
-        description="Título descriptivo de la tarea",
-        example="Diseñar la arquitectura del proyecto FARM stack"
+        description="Nombre del estudiante",
+        example="María Pérez"
     )
-    descripcion: Optional[str] = Field(
-        None,
-        max_length=500,
-        description="Detalles adicionales o requerimientos",
-        example="Definir los modelos en Pydantic y las rutas en FastAPI"
+    idioma_nivel: str = Field(
+        ...,
+        min_length=2,
+        max_length=100,
+        description="Idioma y nivel del curso",
+        example="Inglés B1"
     )
-    completada: bool = Field(
+    valor_curso: float = Field(
+        ...,
+        ge=0,
+        description="Valor del curso",
+        example=350000
+    )
+    pagado: bool = Field(
         default=False,
-        description="Estado de cumplimiento de la tarea"
+        description="Indica si el curso fue pagado"
+    )
+    imagen_url: Optional[str] = Field(
+        None,
+        max_length=2048,
+        description="URL de la imagen del estudiante o matrícula"
     )
 
 
-class TareaCreate(TareaBase):
-    """Modulo utilizado para recibir solicitudes POST de creación"""
+class CursoIdiomaCreate(CursoIdiomaBase):
+    """Modelo utilizado para recibir solicitudes de creación."""
     pass
 
-class TareaUpdate(BaseModel):
-    """Modelo para solicitudes PUT (campos opcionales para edición)"""
-    titulo: Optional[str]= Field(None, min_length=3, max_length=150)
-    descripcion: Optional[str] = Field(None, max_length=500)
-    completada: Optional[bool] = None
 
-class Tarea(TareaBase):
-    """Modelo completo de respuestas que incluye el ID de MongoDB y la fecha"""
+class CursoIdiomaUpdate(BaseModel):
+    """Modelo para solicitudes PUT con campos opcionales."""
+    estudiante: Optional[str] = Field(None, min_length=3, max_length=150)
+    idioma_nivel: Optional[str] = Field(None, min_length=2, max_length=100)
+    valor_curso: Optional[float] = Field(None, ge=0)
+    pagado: Optional[bool] = None
+    imagen_url: Optional[str] = Field(None, max_length=2048)
+
+
+class CursoIdioma(CursoIdiomaBase):
+    """Modelo de respuesta con el ID de MongoDB y la fecha de matrícula."""
     id: PyObjectId = Field(alias="_id", description="Identificador unico de ObjectId de MongoDB")
-    fecha_creacion: datetime = Field(default_factory=datetime.now, description="Fecha de registro")
+    fecha_matricula: datetime = Field(
+        default_factory=datetime.now,
+        description="Fecha de registro de la matrícula"
+    )
 
     model_config = ConfigDict(
-    populate_by_name=True,
-    arbitrary_types_allowed=True,
-    json_schema_extra={
-        "example": {
-            "_id": "654321789abcdef012345678",
-            "titulo": "Implementar endpoints asincronos",
-            "descripcion": "Uso de async/await con el driver Motor",
-            "completada": False,
-            "fecha_creacion": "2026-11-05T18:30:00"
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "_id": "654321789abcdef012345678",
+                "estudiante": "María Pérez",
+                "idioma_nivel": "Inglés B1",
+                "valor_curso": 350000,
+                "pagado": False,
+                "imagen_url": "https://example.com/estudiante.jpg",
+                "fecha_matricula": "2026-11-05T18:30:00"
+            }
         }
-    }
-)
+    )
